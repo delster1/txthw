@@ -1,6 +1,6 @@
 # TODO : add main method, make code functional, cleanup dict and parsing inside of it add parsing date
 import datetime
-
+import re
 # dictionaries for current time and time info given via inut
 given = {'date': int, 'month': int, 'year':int , "weekday": str, "time": str}
 current = {'date': int, 'month': int, 'year':int , "weekday": str, "time": str}
@@ -9,29 +9,29 @@ output = {'date': int, 'month': int, 'year':int , "weekday": str, "time": str}
 
 # stuff for parsing out of input 
 dict = {'verbs': {}, 'nums' : {}}
-def find_assignment(inp):
-    print(inp)
+# def find_assignment(inp):
+    # print(inp)
 
 # og = input("text your work here \n")
-og = "i need to work on my english assignments by 12 am"
+og = "i need to watch a discrete math video by sunday 7:00 pm"
 
 toParseToDate = []
 toParseToTime = []
 # random arrays
+otherWords = ["I","need","must","my","we","have to","i","to","a","by","before"]
 nums = ['1','2','3','4','5','6','7','8','9','0','11','12'] #parsing nums out of input
 times = ["oclock",":","pm","am"] #parsing times
 dates = ["/","-"] 
 weekDays = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
 otherDays = ["tomorrow","today"]
 months = ["january","febuary","march","april","may","june","july","august","september","october","november","december"]
-verbs = ["do","work","finish","start","try","work on","watch","read","study"]
+verbs = ["do","work","finish","start","try","work on","watch","read","study","watch"]
 res = []
 weekDaysDict = {6:"sunday", 0:"monday",1:"tuesday",2:"wednesday",3:"thursday",4:"friday",5:"saturday"}
 
 
 def daysUntil(toParse):
     
-    print("daysUntil(", toParse, ")")
     
     # parsing input of months without "next"
     
@@ -50,25 +50,20 @@ def daysUntil(toParse):
             weekDayCounter = 0
             currentDay = current['weekday']
             objective = weekDaysDict[dayToAdd]
-            print("Current", currentDay, "\n", "objective", objective)
             output['weekday'] = weekDays[weekDays.index(toParse)]
             while caught == False:
                 for o in weekDays:
-                    # print("FindingDay: ",  findingDay)
                     if (o == currentDay and findingDay == False):
                         findingDay = True
-                    print("o in loop: ", o, "findingday: ", findingDay, "objective: ", objective)
                     if findingDay == True and o != currentDay:
                         weekDayCounter+=1
                     if(o==objective and findingDay == True):
                         caught = True
                         break
             
-            print("counter ", weekDayCounter, "; object: ", o)
             output['date']=current['date']+weekDayCounter
 
             return weekDayCounter
-    print(output)
 
 
 # code to turn input into workable array split by spaces
@@ -83,7 +78,6 @@ def dateFromMonth(month):
 
 # function to turn words like "tomorrow" and "next blah" into proper date output(out dict) - BIG FUNCTION
 def parseToDate(toParseToDate):
-    print()
     toParse = toParseToDate.split(" ")
 
     if ("december" not in toParse):
@@ -115,38 +109,63 @@ def parseToDate(toParseToDate):
 
             output['date'] += 7
             
-            print("toparse: ", toParse, "counter: ", weekDayCounter, "; object: ", o)
+#   next not in toparse
     else:
+        output['month'] = current['month']
+
         toParse = toParse[0]
         if toParse in weekDays:
-            print("toParse in weekdays")
             weekDayCounter = daysUntil(toParse)
 
             # output["date"]=current["date"]+7+weekDayCounter
     # parsing input of months without "next"
-    print(output)
     
 # function for parsing to time
 def parseToTime(inp):
+    daytime = False
     d = {1:"01", 2:"02", 3:"03", 4:"04", 5:"05", 6:"06", 7:"07", 8:"08", 9:"09"}
+    if "am" in inp :
+        daytime = True
+    if "pm" in inp:
+        daytime = False
+    timeNum = int(''.join(filter(str.isdigit, inp))) # removes all letters from inp
     # for working with date with imperfect format
     if ":" not in inp:
-        if "am" in toParseToTime :
-            daytime = True
-        if "pm" in toParseToTime:
-            dayTime = False
-        daytime = False
-        timeNum = [int(i) for i in inp.split() if i.isdigit()]
-        if timeNum <= 12 and not daytime:
+        # sort between day and night 4 l8r
+        
+        daytime = False # default night ig
+         # takes everything out input xcept for nums
+        # changing to 24h time
+        if int(timeNum) <= 12 and not daytime:
             timeNum += 12
+            daytime = None
 
-    out = str(timenum) + ":" + 00
-
+        out = str(timeNum) + ":" + "00" #makes time when given hour to 24h formatted
+        
+    # given near perfect format j need to check and organize stuff 
     else:
-    
-    
-    print(daytime)
-    out['time']
+        # checks if the input is formatted w two digits in front of each colon and fixes if not
+        splittedByColon = inp.split(":")
+        #removes letters from thing
+        for i,o in enumerate(splittedByColon):
+            o = ''.join(filter(str.isdigit, o)) 
+            splittedByColon[i] = o
+            
+        #makes sure everything has correct string format
+        if(len(inp)!= 2):
+            if(len(splittedByColon[0]) != 2):
+                splittedByColon[0] = "0" + splittedByColon[0]
+            if(len(splittedByColon[1]) != 2):
+                splittedByColon[0] = "00"
+        # changing numbers to 24h 
+        if(int(splittedByColon[0]) < 12 and not daytime):
+            num = 12 + int(splittedByColon[0])
+            splittedByColon[0] = str(num)
+            daytime = None
+        out = splittedByColon[0] + ":" + splittedByColon[1]
+        
+    output['time'] = out
+
 
 
 # code for finding current date
@@ -188,34 +207,49 @@ def parseFromInp():
             out.remove(o)
             dict['verbs'][o] = i
         # sorting for : and / for dates and times
-        elif ":" in o or "/" in o or "-" in o:
-            if ":" in o:
-                toParseToTime.append(o)
-                out.remove(o)
-            elif "/" in o or "-" in o:
+        elif "/" in o or "-" in o:
+            if "/" in o or "-" in o:
                 toParseToDate.append(o)
                 out.remove(o)
         # checks words around a number for a month or smth like o'clock to determine to parse to date or time
-        elif o in nums:
-            print("temp")
-            toAppend = inp[i-1] + " " + o + " " + inp[i+1]
+        elif o in nums or ":" in o or o in times:
             if(inp[i-1]) in times :
                 temp = o + inp[i-1] 
                 toParseToTime.append(temp) 
                 out.remove(o)
-            elif(inp[i+1]) in times :
-                temp = o + inp[i+1] 
-                toParseToTime.append(temp) 
-                out.remove(o)
-                 
+            elif(i != len(inp)-1): 
+                if inp[i+1] in times :
+                    temp = o + inp[i+1] 
+                    toParseToTime.append(temp) 
+                    out.remove(o)
+                    
             elif (inp[i-1] or inp[i+1]) in months: 
                 toParseToDate.append(temp)
                 out.remove(o)
+            elif (o in times):
+                toParseToDate.append(o)
+                out.remove(o)
         
-        print(out)
+        elif o in otherWords:
+            out.remove(o)
+        for l in times:
+            if l in o and o in out:
+                toParseToTime.append(o)
+                out.remove(o)
+        
+    # print(out)
+    # print("to parse to date: ", toParseToDate)
+    # print("to parse to time: ", toParseToTime)
 
-    print(toParseToDate)
-    print(toParseToTime)
+    if(len(toParseToDate) == 0):
+        output['date'] = current['date'] 
+        output['month'] = current['month']
+        output['year'] = current['year']
+        output['weekday'] = current['weekday']
+
+    if(len(toParseToTime) == 0):
+        output['time'] = "24:00"       
+
     t = out.copy()
     n = dict['verbs']
     # print(n.items())
@@ -227,12 +261,10 @@ def parseFromInp():
         i.append(o for o in dict if len(o) > 0)
         # print(i)
     # print(len(dict['nums']))
-    print("to parse to date", toParseToDate)
 
     # To parse to date is an array of arguments either of strings or words for formatting date from input
     for i,o in enumerate(toParseToDate):
         parseToDate(o)
-        print(o)
     
     for i,o in enumerate(toParseToTime):
         parseToTime(o)
@@ -240,7 +272,9 @@ def parseFromInp():
 def main():    
     getCurrent()
     parseFromInp()
+    print(" ".join(out))
+    print(output)
+    
 
 if __name__ == "__main__":
     main()
-
