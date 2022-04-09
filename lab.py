@@ -1,6 +1,8 @@
-# TODO : add main method, make code functional, cleanup dict and parsing inside of it add parsing date
+# TODO : aadd google calendae
 import datetime
 import re
+from gcal import createEvent
+
 # dictionaries for current time and time info given via inut
 given = {'date': int, 'month': int, 'year':int , "weekday": str, "time": str}
 current = {'date': int, 'month': int, 'year':int , "weekday": str, "time": str}
@@ -272,13 +274,11 @@ def parseFromInp():
 def main():    
     getCurrent()
     parseFromInp()
-    print(" ".join(out))
+    outstr = " ".join(out)
+    print(outstr)
     print(output)
+    createEvent(output,outstr)
     
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     main()
-=======
-    main()
->>>>>>> 9ac6bc6c455cf9edf562c84e0e07038cf6569911
