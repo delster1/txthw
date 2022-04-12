@@ -14,20 +14,21 @@ dict = {'verbs': {}, 'nums' : {}}
 # def find_assignment(inp):
     # print(inp)
 
-# og = input("text your work here \n")
-og = "i need to watch a discrete math video by sunday 7:00 pm"
+og = input("text your work here \n")
+# og = "i need to watch a discrete math video by sunday 10:00 pm"
 
 toParseToDate = []
 toParseToTime = []
 # random arrays
-otherWords = ["I","need","must","my","we","have to","i","to","a","by","before"]
+otherWords = ["I","need","must","my","we","have to","i","to","a","by","before","this","on","do"]
 nums = ['1','2','3','4','5','6','7','8','9','0','11','12'] #parsing nums out of input
 times = ["oclock",":","pm","am"] #parsing times
+timeNums = ["1","2","3","4","5","7","8","9","10","11","12"]
 dates = ["/","-"] 
 weekDays = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
 otherDays = ["tomorrow","today"]
 months = ["january","febuary","march","april","may","june","july","august","september","october","november","december"]
-verbs = ["do","work","finish","start","try","work on","watch","read","study","watch"]
+verbs = ["do","finish","start","try","work on","watch","read","study","watch"]
 res = []
 weekDaysDict = {6:"sunday", 0:"monday",1:"tuesday",2:"wednesday",3:"thursday",4:"friday",5:"saturday"}
 
@@ -234,10 +235,17 @@ def parseFromInp():
         
         elif o in otherWords:
             out.remove(o)
+        elif o in timeNums:
+            toParseToDate.append(o)
+            out.remove(o)
         for l in times:
             if l in o and o in out:
                 toParseToTime.append(o)
                 out.remove(o)
+        for o in out:
+            if o in toParseToDate or o in toParseToTime:
+                out.remove(o)
+        
         
     # print(out)
     # print("to parse to date: ", toParseToDate)
