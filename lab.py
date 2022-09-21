@@ -39,7 +39,7 @@ def daysUntil(toParse):
     # parsing input of months without "next"
     
     if(toParse in months):
-            output['month']=month[months.index(month)]
+            output['month']=months[months.index(toParse)]
          # parsing input of weekdays without "next"
     elif toParse in weekDays:
             output['weekday']=weekDays.index(toParse)
@@ -111,6 +111,7 @@ def parseToDate(toParseToDate):
             weekDayCounter = daysUntil(toParse[nextLocation+1])
 
             output['date'] += 7
+        
             
 #   next not in toparse
     else:
